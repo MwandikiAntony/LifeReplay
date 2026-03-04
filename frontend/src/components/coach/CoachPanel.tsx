@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSessionStore } from "@/lib/sessionStore";
 import FeedbackOverlay from "./FeedbackOverlay";
-
+import { whisperSpeak } from "@/lib/tts";
 const mockFeedback = [
   "Slow down slightly — clarity improves with pauses.",
   "Maintain eye contact a bit longer.",
@@ -22,6 +22,8 @@ export default function CoachPanel() {
     const interval = setInterval(() => {
       const msg = mockFeedback[Math.floor(Math.random() * mockFeedback.length)];
       setFeedback(msg);
+      setFeedback(msg);
+      whisperSpeak(msg);
     }, 4000);
 
     return () => clearInterval(interval);
