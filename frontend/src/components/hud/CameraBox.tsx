@@ -48,7 +48,7 @@ export default function CameraBox() {
           </div>
 
           <div className="absolute bottom-4 right-4 text-xs text-gray-400">
-            ARIA Vision Active
+            LifeReplay Vision Active
           </div>
         </div>
       </div>
