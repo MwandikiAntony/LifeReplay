@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* Tell Tailwind v4 to scan everything */
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+
+/* === ARIA / LifeReplay DESIGN TOKENS === */
+:root {
+  --bg-void: #020609;
+  --bg-deep: #050d14;
+  --bg-surface: #091520;
+  --bg-card: #0d1e2e;
+  --bg-elevated: #132438;
+
+  --cyan: #00e5ff;
+  --cyan-dim: #00b8d4;
+  --cyan-ghost: rgba(0,229,255,0.08);
+  --cyan-glow: rgba(0,229,255,0.25);
+
+  --amber: #ffab00;
+  --green: #00e676;
+  --red: #ff3d57;
+
+  --text-primary: #e8f4f8;
+  --text-secondary: #7baec7;
+  --text-muted: #3d6278;
+
+  --border: rgba(0,229,255,0.12);
+  --border-bright: rgba(0,229,255,0.35);
+
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  --font-display: 'Rajdhani', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: 'Outfit', sans-serif;
+}
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
