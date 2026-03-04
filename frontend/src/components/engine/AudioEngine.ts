@@ -3,6 +3,11 @@ export class AudioEngine {
   private processor: ScriptProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private stream: MediaStream | null = null;
+   private analyser: AnalyserNode | null = null;
+
+getAnalyser() {
+  return this.analyser;
+}
 
   async start(stream: MediaStream, onChunk: (data: ArrayBuffer) => void) {
     this.stream = stream;
@@ -19,13 +24,16 @@ export class AudioEngine {
 
     this.source.connect(this.processor);
     this.processor.connect(this.audioContext.destination);
-
+    this.analyser = this.audioContext.createAnalyser();
+    this.source.connect(this.analyser);
     this.processor.onaudioprocess = (event) => {
       const input = event.inputBuffer.getChannelData(0);
       const pcmData = this.convertFloatTo16BitPCM(input);
       onChunk(pcmData);
     };
   }
+
+ 
 
   private convertFloatTo16BitPCM(input: Float32Array): ArrayBuffer {
     const buffer = new ArrayBuffer(input.length * 2);

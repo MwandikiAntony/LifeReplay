@@ -8,10 +8,11 @@ import { SpeechActivityDetector } from "@/components/engine/SpeechActivityDetect
 import { startMockWebSocket } from "@/components/engine/WebSocketClient";
 import { useSessionStore } from "@/lib/sessionStore";
 import WebSocketStatus from "@/components/system/WebSocketStatus";
+import { SessionRecorder } from "@/lib/sessionRecorder";
 
 export default function NavigationHUD() {
   const [speaking, setSpeaking] = useState(false);
-
+  const recorder = useRef(new SessionRecorder());
   const audioEngine = useRef<AudioEngine | null>(null);
   const vad = useRef<SpeechActivityDetector | null>(null);
 
@@ -26,7 +27,7 @@ export default function NavigationHUD() {
   useEffect(() => {
     audioEngine.current = new AudioEngine();
     vad.current = new SpeechActivityDetector(0.02);
-
+    recorder.current.recordAudio(chunkBuffer);
     async function initAudio() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -42,6 +43,7 @@ export default function NavigationHUD() {
           for (let i = 0; i < floatData.length; i++) {
             floatData[i] = view.getInt16(i * 2, true) / 0x7fff;
           }
+          recorder.current.recordEvent({ feedback: msg });
 
           // Feed data to VAD
           vad.current!.process(floatData, setSpeaking);
