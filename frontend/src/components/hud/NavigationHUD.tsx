@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import CameraBox from "@/components/hud/CameraBox";
+
 import { AudioEngine } from "@/components/engine/AudioEngine";
 import { WebSocketClient } from "@/components/engine/WebSocketClient";
 import WebSocketStatus from "@/components/system/WebSocketStatus";
@@ -53,7 +53,7 @@ export default function NavigationHUD() {
         <h2 className="text-3xl md:text-5xl font-bold">LifeReplay Live Monitor</h2>
       </div>
 
-      <CameraBox />
+      
 
       <WebSocketStatus status={status} />
 

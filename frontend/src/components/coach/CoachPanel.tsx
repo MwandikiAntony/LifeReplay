@@ -1,11 +1,19 @@
+"use client";
+
 import FeedbackOverlay from "./FeedbackOverlay";
-import MetricsDashboard from "./MetricsDashboard";
 
 export default function CoachPanel() {
   return (
-    <div className="flex flex-col md:flex-row gap-4 mt-4">
+    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-4 shadow-lg">
+      <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mb-2">
+        LIVE COACH
+      </h3>
+
       <FeedbackOverlay />
-      <MetricsDashboard />
+
+      <div className="mt-3 text-[11px] text-[var(--text-secondary)]">
+        Whisper mode active • Minimal intervention
+      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import WebSocketStatus from "@/components/system/WebSocketStatus";
 
 export default function LivePage() {
   return (
-    <div className="relative h-[calc(100vh-64px)] bg-black overflow-hidden">
+    <div className="relative h-[calc(100vh-64px)] overflow-hidden bg-black">
       {/* Camera feed */}
       <CameraBox />
 
