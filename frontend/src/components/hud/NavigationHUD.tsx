@@ -10,7 +10,7 @@ import { useSessionStore } from "@/lib/sessionStore";
 import WebSocketStatus from "@/components/system/WebSocketStatus";
 import { SessionRecorder } from "@/lib/sessionRecorder";
 import ConfidenceHUD from "./confidenceHUD";
-
+import { whisper } from "@/lib/whisperTTS";
 export default function NavigationHUD() {
   const [speaking, setSpeaking] = useState(false);
   const [confidence, setConfidence] = useState(0);
@@ -24,6 +24,12 @@ export default function NavigationHUD() {
   useEffect(() => {
     startMockWebSocket();
   }, []);
+//whisper
+  useEffect(() => {
+  if (!speaking && confidence < 50) {
+    whisper("Slow down. Speak with intention.");
+  }
+}, [speaking, confidence]);
 
   /* ---------- Audio + VAD + Recording ---------- */
   useEffect(() => {
@@ -41,7 +47,7 @@ export default function NavigationHUD() {
         await audioEngine.current!.start(stream, (chunkBuffer) => {
           /* --- Record raw PCM16 --- */
           recorder.current?.recordAudio(chunkBuffer);
-
+          recorder.current?.recordSpeech(speaking);
           /* --- PCM16 → Float32 for VAD --- */
           const floatData = new Float32Array(chunkBuffer.byteLength / 2);
           const view = new DataView(chunkBuffer);
