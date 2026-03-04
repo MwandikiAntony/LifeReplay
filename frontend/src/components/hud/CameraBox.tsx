@@ -2,24 +2,34 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useDeviceStore } from "@/lib/deviceStore";
 
 export default function CameraBox() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const pathname = usePathname();
 
+  const setCamera = useDeviceStore((s) => s.setCamera);
+  const setPiP = useDeviceStore((s) => s.setPiP);
+
   const [error, setError] = useState<string | null>(null);
   const [pipSupported, setPipSupported] = useState(false);
 
-  /* ---------- Detect PiP support + init camera ---------- */
+  /* ---------- Detect PiP support ---------- */
   useEffect(() => {
     setPipSupported(
       typeof document !== "undefined" &&
-        "pictureInPictureEnabled" in document
+        "pictureInPictureEnabled" in document &&
+        document.pictureInPictureEnabled
     );
+  }, []);
+
+  /* ---------- Camera lifecycle ---------- */
+  useEffect(() => {
+    let stream: MediaStream | null = null;
 
     async function initCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: false,
         });
@@ -27,49 +37,70 @@ export default function CameraBox() {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
+
+        setCamera(true);
       } catch {
         setError("Camera access denied");
+        setCamera(false);
       }
     }
 
     initCamera();
-  }, []);
+
+    return () => {
+      stream?.getTracks().forEach((t) => t.stop());
+      setCamera(false);
+    };
+  }, [setCamera]);
 
   /* ---------- Manual PiP ---------- */
   async function enablePiP() {
     try {
       if (
         videoRef.current &&
-        document.pictureInPictureEnabled &&
+        pipSupported &&
         !document.pictureInPictureElement
       ) {
         await videoRef.current.requestPictureInPicture();
+        setPiP(true);
       }
     } catch (err) {
       console.warn("PiP failed:", err);
     }
   }
 
-  /* ---------- AUTO PiP when leaving /live ---------- */
+  /* ---------- Auto PiP when leaving /live ---------- */
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleLeavePiP = () => {
+      setPiP(false);
+    };
+
+    video.addEventListener("leavepictureinpicture", handleLeavePiP);
+
     async function autoEnterPiP() {
       if (
         pathname !== "/live" &&
         pipSupported &&
-        videoRef.current &&
-        document.pictureInPictureEnabled &&
         !document.pictureInPictureElement
       ) {
         try {
-          await videoRef.current.requestPictureInPicture();
+          await video.requestPictureInPicture();
+          setPiP(true);
         } catch {
-          // silently fail – browser may block
+          // browser may block without user gesture
         }
       }
     }
 
     autoEnterPiP();
-  }, [pathname, pipSupported]);
+
+    return () => {
+      video.removeEventListener("leavepictureinpicture", handleLeavePiP);
+    };
+  }, [pathname, pipSupported, setPiP]);
 
   /* ---------- Permission fallback ---------- */
   if (error) {

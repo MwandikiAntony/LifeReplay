@@ -11,9 +11,12 @@ import WebSocketStatus from "@/components/system/WebSocketStatus";
 import { SessionRecorder } from "@/lib/sessionRecorder";
 import ConfidenceHUD from "./confidenceHUD";
 import { whisper } from "@/lib/whisperTTS";
+
 export default function NavigationHUD() {
   const [speaking, setSpeaking] = useState(false);
   const [confidence, setConfidence] = useState(0);
+  const lastSpeechTime = useRef<number>(Date.now());
+  const hasSpokenOnce = useRef(false);
   const audioEngine = useRef<AudioEngine | null>(null);
   const vad = useRef<SpeechActivityDetector | null>(null);
   const recorder = useRef<SessionRecorder | null>(null);
@@ -24,9 +27,15 @@ export default function NavigationHUD() {
   useEffect(() => {
     startMockWebSocket();
   }, []);
-//whisper
+
+  /* ---------- Whisper coaching ---------- */
   useEffect(() => {
-  if (!speaking && confidence < 50) {
+  if (!hasSpokenOnce.current) return;
+
+  const silenceDuration = Date.now() - lastSpeechTime.current;
+
+  // Speak only after real silence (e.g. 2 seconds)
+  if (!speaking && silenceDuration > 2000 && confidence < 50) {
     whisper("Slow down. Speak with intention.");
   }
 }, [speaking, confidence]);
@@ -47,7 +56,7 @@ export default function NavigationHUD() {
         await audioEngine.current!.start(stream, (chunkBuffer) => {
           /* --- Record raw PCM16 --- */
           recorder.current?.recordAudio(chunkBuffer);
-          recorder.current?.recordSpeech(speaking);
+
           /* --- PCM16 → Float32 for VAD --- */
           const floatData = new Float32Array(chunkBuffer.byteLength / 2);
           const view = new DataView(chunkBuffer);
@@ -57,7 +66,18 @@ export default function NavigationHUD() {
           }
 
           /* --- Voice activity detection --- */
-          vad.current?.process(floatData, setSpeaking);
+            vad.current?.process(floatData, (isSpeaking) => {
+            setSpeaking(isSpeaking);
+            recorder.current?.recordSpeech(isSpeaking);
+
+            if (isSpeaking) {
+              lastSpeechTime.current = Date.now();
+              hasSpokenOnce.current = true;
+            }
+
+            const score = vad.current?.getConfidenceScore();
+            if (score !== undefined) setConfidence(score);
+          });
         });
       } catch (err) {
         console.warn("Audio init failed:", err);
@@ -65,8 +85,6 @@ export default function NavigationHUD() {
     }
 
     initAudio();
-    const score = vad.current?.getConfidenceScore();
-    if (score !== undefined) setConfidence(score);
 
     return () => {
       audioEngine.current?.stop();
@@ -85,13 +103,14 @@ export default function NavigationHUD() {
         </p>
       </div>
 
-      
-
       {/* WebSocket / AI status */}
       <div className="flex justify-center mb-10">
         <WebSocketStatus />
       </div>
-        <ConfidenceHUD score={confidence} />
+
+      {/* Confidence HUD */}
+      <ConfidenceHUD score={confidence} />
+
       {/* Voice Activity Indicator */}
       <motion.div
         animate={{ scale: speaking ? 1.3 : 1 }}

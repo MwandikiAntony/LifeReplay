@@ -1,3 +1,4 @@
+import { useDeviceStore } from "@/lib/deviceStore";
 export class AudioEngine {
   private audioContext: AudioContext | null = null;
   private processor: ScriptProcessorNode | null = null;
@@ -14,12 +15,13 @@ getAnalyser() {
 
     this.audioContext = new AudioContext({ sampleRate: 16000 });
 
-    // 🔴 Required in Chrome (autoplay policy)
+    // Required in Chrome (autoplay policy)
     if (this.audioContext.state === "suspended") {
       await this.audioContext.resume();
     }
 
     this.source = this.audioContext.createMediaStreamSource(stream);
+    useDeviceStore.getState().setMic(true);
     this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
 
     this.source.connect(this.processor);
@@ -59,6 +61,7 @@ getAnalyser() {
       this.stream?.getTracks().forEach((track) => track.stop());
 
       this.audioContext?.close();
+      useDeviceStore.getState().setMic(true);
     } catch (e) {
       console.warn("AudioEngine stop error:", e);
     } finally {
