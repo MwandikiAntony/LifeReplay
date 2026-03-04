@@ -1,33 +1,10 @@
-type StatusCallback = (status: string) => void;
+import { useSessionStore } from "@/lib/sessionStore";
 
-export class WebSocketClient {
-  private socket: WebSocket | null = null;
-  private statusCallback?: StatusCallback;
+export function startMockWebSocket() {
+  const { setState } = useSessionStore.getState();
 
-  constructor(private url: string) {}
-
-  connect(onStatusChange?: StatusCallback) {
-    this.statusCallback = onStatusChange;
-
-    this.socket = new WebSocket(this.url);
-    this.socket.binaryType = "arraybuffer";
-
-    this.socket.onopen = () => {
-      this.statusCallback?.("CONNECTED");
-    };
-
-    this.socket.onclose = () => {
-      this.statusCallback?.("DISCONNECTED");
-    };
-
-    this.socket.onerror = () => {
-      this.statusCallback?.("ERROR");
-    };
-  }
-
-  sendAudio(data: ArrayBuffer) {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(data);
-    }
-  }
+  // Simulate connection lifecycle
+  setTimeout(() => setState("live"), 1500);
+  setTimeout(() => setState("paused"), 12000);
+  setTimeout(() => setState("live"), 18000);
 }

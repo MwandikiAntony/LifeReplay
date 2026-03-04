@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function CameraBox() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const pathname = usePathname();
+
   const [error, setError] = useState<string | null>(null);
   const [pipSupported, setPipSupported] = useState(false);
 
+  /* ---------- Detect PiP support + init camera ---------- */
   useEffect(() => {
     setPipSupported(
       typeof document !== "undefined" &&
@@ -31,6 +35,7 @@ export default function CameraBox() {
     initCamera();
   }, []);
 
+  /* ---------- Manual PiP ---------- */
   async function enablePiP() {
     try {
       if (
@@ -44,6 +49,27 @@ export default function CameraBox() {
       console.warn("PiP failed:", err);
     }
   }
+
+  /* ---------- AUTO PiP when leaving /live ---------- */
+  useEffect(() => {
+    async function autoEnterPiP() {
+      if (
+        pathname !== "/live" &&
+        pipSupported &&
+        videoRef.current &&
+        document.pictureInPictureEnabled &&
+        !document.pictureInPictureElement
+      ) {
+        try {
+          await videoRef.current.requestPictureInPicture();
+        } catch {
+          // silently fail – browser may block
+        }
+      }
+    }
+
+    autoEnterPiP();
+  }, [pathname, pipSupported]);
 
   /* ---------- Permission fallback ---------- */
   if (error) {
@@ -72,7 +98,7 @@ export default function CameraBox() {
         className="w-full h-full object-cover"
       />
 
-      {/* PiP button */}
+      {/* Manual PiP button */}
       {pipSupported && (
         <button
           onClick={enablePiP}
