@@ -19,7 +19,16 @@ export class SpeechActivityDetector {
 
     onSpeaking?.(speaking);
   }
+//get confidence score
+  getConfidenceScore() {
+  const ratio = this.getSpeakingRatio();
 
+  // Ideal range: 0.4–0.65
+  if (ratio < 0.4) return Math.round(ratio * 100);
+  if (ratio > 0.65) return Math.round((1 - (ratio - 0.65)) * 100);
+
+  return Math.round(80 + (ratio - 0.4) * 100);
+}
   /* ---------- Metrics ---------- */
   getSpeakingRatio() {
     return this.totalFrames > 0
@@ -41,3 +50,4 @@ export class SpeechActivityDetector {
     return Math.sqrt(sum / buffer.length);
   }
 }
+

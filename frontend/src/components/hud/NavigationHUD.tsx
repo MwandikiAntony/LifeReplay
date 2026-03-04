@@ -9,12 +9,14 @@ import { startMockWebSocket } from "@/components/engine/WebSocketClient";
 import { useSessionStore } from "@/lib/sessionStore";
 import WebSocketStatus from "@/components/system/WebSocketStatus";
 import { SessionRecorder } from "@/lib/sessionRecorder";
+import ConfidenceHUD from "./confidenceHUD";
 
 export default function NavigationHUD() {
   const [speaking, setSpeaking] = useState(false);
-  const recorder = useRef(new SessionRecorder());
+  const [confidence, setConfidence] = useState(0);
   const audioEngine = useRef<AudioEngine | null>(null);
   const vad = useRef<SpeechActivityDetector | null>(null);
+  const recorder = useRef<SessionRecorder | null>(null);
 
   const sessionState = useSessionStore((s) => s.state);
 
@@ -23,11 +25,12 @@ export default function NavigationHUD() {
     startMockWebSocket();
   }, []);
 
-  /* ---------- Audio + VAD ---------- */
+  /* ---------- Audio + VAD + Recording ---------- */
   useEffect(() => {
     audioEngine.current = new AudioEngine();
     vad.current = new SpeechActivityDetector(0.02);
-    recorder.current.recordAudio(chunkBuffer);
+    recorder.current = new SessionRecorder();
+
     async function initAudio() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -36,17 +39,19 @@ export default function NavigationHUD() {
         });
 
         await audioEngine.current!.start(stream, (chunkBuffer) => {
-          // Convert PCM16 → Float32
+          /* --- Record raw PCM16 --- */
+          recorder.current?.recordAudio(chunkBuffer);
+
+          /* --- PCM16 → Float32 for VAD --- */
           const floatData = new Float32Array(chunkBuffer.byteLength / 2);
           const view = new DataView(chunkBuffer);
 
           for (let i = 0; i < floatData.length; i++) {
             floatData[i] = view.getInt16(i * 2, true) / 0x7fff;
           }
-          recorder.current.recordEvent({ feedback: msg });
 
-          // Feed data to VAD
-          vad.current!.process(floatData, setSpeaking);
+          /* --- Voice activity detection --- */
+          vad.current?.process(floatData, setSpeaking);
         });
       } catch (err) {
         console.warn("Audio init failed:", err);
@@ -54,6 +59,8 @@ export default function NavigationHUD() {
     }
 
     initAudio();
+    const score = vad.current?.getConfidenceScore();
+    if (score !== undefined) setConfidence(score);
 
     return () => {
       audioEngine.current?.stop();
@@ -67,15 +74,18 @@ export default function NavigationHUD() {
           LifeReplay Live Monitor
         </h2>
         <p className="text-sm text-gray-400 mt-2">
-          Session state: <span className="uppercase">{sessionState}</span>
+          Session state:{" "}
+          <span className="uppercase font-mono">{sessionState}</span>
         </p>
       </div>
+
+      
 
       {/* WebSocket / AI status */}
       <div className="flex justify-center mb-10">
         <WebSocketStatus />
       </div>
-
+        <ConfidenceHUD score={confidence} />
       {/* Voice Activity Indicator */}
       <motion.div
         animate={{ scale: speaking ? 1.3 : 1 }}
