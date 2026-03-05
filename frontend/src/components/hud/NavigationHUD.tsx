@@ -11,7 +11,7 @@ import WebSocketStatus from "@/components/system/WebSocketStatus";
 import { SessionRecorder } from "@/lib/sessionRecorder";
 import ConfidenceHUD from "./confidenceHUD";
 import { whisper } from "@/lib/whisperTTS";
-
+import { useDeviceStore } from "@/lib/deviceStore";
 export default function NavigationHUD() {
   const [speaking, setSpeaking] = useState(false);
   const [confidence, setConfidence] = useState(0);
@@ -22,21 +22,34 @@ export default function NavigationHUD() {
   const recorder = useRef<SessionRecorder | null>(null);
   const addTranscript = useSessionStore((s) => s.addTranscript);
   const sessionState = useSessionStore((s) => s.state);
-
+  const setMicActive = useDeviceStore.getState().setMicActive;
   /* ---------- WebSocket lifecycle ---------- */
   useEffect(() => {
   startWebSocket("ws://localhost:5000", (msg) => {
 
-    if (msg.type === "transcript") {
-      console.log("Transcript:", msg.text);
+  if (msg.type === "transcript") {
 
-      recorder.current?.recordEvent({
-        type: "transcript",
-        text: msg.text
-      });
-    }
+    addTranscript(msg.text)
 
-  });
+    recorder.current?.recordEvent({
+      type: "transcript",
+      text: msg.text
+    })
+
+  }
+
+  if (msg.type === "coach") {
+
+    recorder.current?.recordEvent({
+      type: "coach",
+      advice: msg.advice
+    })
+
+    console.log("AI Coach Advice:", msg.advice)
+
+  }
+
+});
 }, []);
 
   /* ---------- Whisper coaching ---------- */
@@ -63,6 +76,7 @@ export default function NavigationHUD() {
           audio: true,
           video: false,
         });
+        setMicActive(true);
 
         await audioEngine.current!.start(stream, (chunkBuffer) => {
           sendAudio(chunkBuffer);
@@ -97,10 +111,10 @@ export default function NavigationHUD() {
     }
 
     initAudio();
-
-    return () => {
-      audioEngine.current?.stop();
-    };
+return () => {
+  audioEngine.current?.stop();
+  useDeviceStore.getState().setMicActive(false);
+};
   }, []);
 
   return (

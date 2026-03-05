@@ -4,12 +4,7 @@ import { useEffect } from "react";
 import { useSessionStore } from "@/lib/sessionStore";
 import FeedbackOverlay from "./FeedbackOverlay";
 import { whisperSpeak } from "@/lib/tts";
-const mockFeedback = [
-  "Slow down slightly — clarity improves with pauses.",
-  "Maintain eye contact a bit longer.",
-  "Good confidence — keep this pacing.",
-  "Lower your tone at sentence endings.",
-];
+import { connectCoach } from "@/lib/coachSocket";
 
 export default function CoachPanel() {
   const feedback = useSessionStore((s) => s.feedback);
@@ -17,17 +12,13 @@ export default function CoachPanel() {
   const state = useSessionStore((s) => s.state);
 
   useEffect(() => {
-    if (state !== "live") return;
+  if (state !== "live") return;
 
-    const interval = setInterval(() => {
-      const msg = mockFeedback[Math.floor(Math.random() * mockFeedback.length)];
-      setFeedback(msg);
-      setFeedback(msg);
-      whisperSpeak(msg);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [state, setFeedback]);
+  connectCoach((msg) => {
+    setFeedback(msg);
+    whisperSpeak(msg);
+  });
+}, [state]);
 
   if (state !== "live") {
     return (

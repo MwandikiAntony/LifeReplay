@@ -3,13 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useDeviceStore } from "@/lib/deviceStore";
+import { getCameraDevices } from "@/lib/getCameraDevices";
 
 export default function CameraBox() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const pathname = usePathname();
 
-  const setCamera = useDeviceStore((s) => s.setCamera);
-  const setPiP = useDeviceStore((s) => s.setPiP);
+  const setCameraActive = useDeviceStore((s) => s.setCameraActive);
+  const setPiPActive = useDeviceStore((s) => s.setPiPActive);
+
+  /* ---------- NEW STORE VALUES ---------- */
+  const setCameras = useDeviceStore((s) => s.setCameras);
+  const selectedCamera = useDeviceStore((s) => s.selectedCamera);
+  const setSelectedCamera = useDeviceStore((s) => s.setSelectedCamera);
 
   const [error, setError] = useState<string | null>(null);
   const [pipSupported, setPipSupported] = useState(false);
@@ -23,6 +29,21 @@ export default function CameraBox() {
     );
   }, []);
 
+  /* ---------- Detect available cameras ---------- */
+  useEffect(() => {
+    async function loadDevices() {
+      const cams = await getCameraDevices();
+
+      setCameras(cams);
+
+      if (cams.length > 0 && !selectedCamera) {
+        setSelectedCamera(cams[0].deviceId);
+      }
+    }
+
+    loadDevices();
+  }, [setCameras, selectedCamera, setSelectedCamera]);
+
   /* ---------- Camera lifecycle ---------- */
   useEffect(() => {
     let stream: MediaStream | null = null;
@@ -30,7 +51,9 @@ export default function CameraBox() {
     async function initCamera() {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: selectedCamera
+            ? { deviceId: { exact: selectedCamera } }
+            : true,
           audio: false,
         });
 
@@ -38,10 +61,10 @@ export default function CameraBox() {
           videoRef.current.srcObject = stream;
         }
 
-        setCamera(true);
+        setCameraActive(true);
       } catch {
         setError("Camera access denied");
-        setCamera(false);
+        setCameraActive(false);
       }
     }
 
@@ -49,9 +72,9 @@ export default function CameraBox() {
 
     return () => {
       stream?.getTracks().forEach((t) => t.stop());
-      setCamera(false);
+      setCameraActive(false);
     };
-  }, [setCamera]);
+  }, [selectedCamera, setCameraActive]);
 
   /* ---------- Manual PiP ---------- */
   async function enablePiP() {
@@ -62,7 +85,7 @@ export default function CameraBox() {
         !document.pictureInPictureElement
       ) {
         await videoRef.current.requestPictureInPicture();
-        setPiP(true);
+        setPiPActive(true);
       }
     } catch (err) {
       console.warn("PiP failed:", err);
@@ -75,7 +98,7 @@ export default function CameraBox() {
     if (!video) return;
 
     const handleLeavePiP = () => {
-      setPiP(false);
+      setPiPActive(false);
     };
 
     video.addEventListener("leavepictureinpicture", handleLeavePiP);
@@ -88,10 +111,8 @@ export default function CameraBox() {
       ) {
         try {
           await video.requestPictureInPicture();
-          setPiP(true);
-        } catch {
-          
-        }
+          setPiPActive(true);
+        } catch {}
       }
     }
 
@@ -100,7 +121,7 @@ export default function CameraBox() {
     return () => {
       video.removeEventListener("leavepictureinpicture", handleLeavePiP);
     };
-  }, [pathname, pipSupported, setPiP]);
+  }, [pathname, pipSupported, setPiPActive]);
 
   /* ---------- Permission fallback ---------- */
   if (error) {

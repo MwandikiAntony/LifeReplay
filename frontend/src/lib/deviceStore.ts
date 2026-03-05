@@ -1,39 +1,52 @@
-import { create } from "zustand"
+import { create } from "zustand";
 
-export type CameraDevice = {
-  deviceId: string
-  label: string
-}
+type CameraDevice = {
+  deviceId: string;
+  label: string;
+};
+
+type ConnectionQuality = "good" | "medium" | "poor";
 
 type DeviceState = {
-  cameras: CameraDevice[]
-  selectedCamera: string | null
-  setCameras: (devices: CameraDevice[]) => void
-  setSelectedCamera: (deviceId: string) => void
+  /* ---------- Device Activity ---------- */
+  micActive: boolean;
+  cameraActive: boolean;
+  pipActive: boolean;
 
-  stream: MediaStream | null
-  setStream: (stream: MediaStream | null) => void
+  /* ---------- Connection ---------- */
+  connectionQuality: ConnectionQuality;
 
-  pipEnabled: boolean
-  setPipEnabled: (value: boolean) => void
+  setMicActive: (state: boolean) => void;
+  setCameraActive: (state: boolean) => void;
+  setPiPActive: (state: boolean) => void;
+  setConnectionQuality: (quality: ConnectionQuality) => void;
 
-  connectionQuality: "good" | "medium" | "poor"
-  setConnectionQuality: (q: "good" | "medium" | "poor") => void
-}
+  /* ---------- Camera Selection ---------- */
+  cameras: CameraDevice[];
+  selectedCamera: string | null;
+
+  setCameras: (devices: CameraDevice[]) => void;
+  setSelectedCamera: (id: string) => void;
+};
 
 export const useDeviceStore = create<DeviceState>((set) => ({
+  /* ---------- Activity ---------- */
+  micActive: false,
+  cameraActive: false,
+  pipActive: false,
+
+  /* ---------- Connection ---------- */
+  connectionQuality: "good",
+
+  setMicActive: (state) => set({ micActive: state }),
+  setCameraActive: (state) => set({ cameraActive: state }),
+  setPiPActive: (state) => set({ pipActive: state }),
+  setConnectionQuality: (quality) => set({ connectionQuality: quality }),
+
+  /* ---------- Cameras ---------- */
   cameras: [],
   selectedCamera: null,
 
   setCameras: (devices) => set({ cameras: devices }),
-  setSelectedCamera: (deviceId) => set({ selectedCamera: deviceId }),
-
-  stream: null,
-  setStream: (stream) => set({ stream }),
-
-  pipEnabled: false,
-  setPipEnabled: (v) => set({ pipEnabled: v }),
-
-  connectionQuality: "good",
-  setConnectionQuality: (q) => set({ connectionQuality: q }),
-}))
+  setSelectedCamera: (id) => set({ selectedCamera: id }),
+}));

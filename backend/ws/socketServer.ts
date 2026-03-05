@@ -1,5 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
 import STTService from "../services/sttService";
+import { analyzeConversation } from "../ai/conversationAnalyzer";
 
 function startSocketServer(): void {
   const wss = new WebSocketServer({ port: 5000 });
@@ -12,6 +13,8 @@ function startSocketServer(): void {
     const stt = new STTService();
     stt.start();
 
+    /* ---------- RECEIVE AUDIO STREAM ---------- */
+
     ws.on("message", (audioChunk: WebSocket.RawData) => {
       try {
         stt.sendAudio(audioChunk as Buffer);
@@ -20,18 +23,45 @@ function startSocketServer(): void {
       }
     });
 
+    /* ---------- TRANSCRIPT CALLBACK ---------- */
+
     stt.onTranscript = (text: string) => {
+      console.log("Transcript:", text);
+
+      /* Send transcript to frontend */
+
       ws.send(
         JSON.stringify({
           type: "transcript",
-          text: text,
+          text,
           time: Date.now(),
         })
       );
+
+      /* ---------- AI Conversation Intelligence ---------- */
+
+      const result = analyzeConversation(text);
+
+      if (result.advice && result.advice.length > 0) {
+        ws.send(
+          JSON.stringify({
+            type: "coach",
+            advice: result.advice,
+            time: Date.now(),
+          })
+        );
+      }
     };
+
+    /* ---------- CLEANUP ---------- */
 
     ws.on("close", () => {
       console.log("Client disconnected");
+      stt.stop();
+    });
+
+    ws.on("error", (err) => {
+      console.error("WebSocket error:", err);
       stt.stop();
     });
   });

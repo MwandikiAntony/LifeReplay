@@ -21,7 +21,7 @@ getAnalyser() {
     }
 
     this.source = this.audioContext.createMediaStreamSource(stream);
-    useDeviceStore.getState().setMic(true);
+    useDeviceStore.getState().setMicActive(true);
     this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
 
     this.source.connect(this.processor);
@@ -61,7 +61,7 @@ getAnalyser() {
       this.stream?.getTracks().forEach((track) => track.stop());
 
       this.audioContext?.close();
-      useDeviceStore.getState().setMic(true);
+      useDeviceStore.getState().setMicActive(true);
     } catch (e) {
       console.warn("AudioEngine stop error:", e);
     } finally {

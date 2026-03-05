@@ -72,7 +72,7 @@ export default function Navbar() {
                   : "bg-gray-500"
               }`}
             />
-            {sessionState.toUpperCase()}
+           {(sessionState || "idle").toUpperCase()}
           </span>
 
           {/* Command hint */}
