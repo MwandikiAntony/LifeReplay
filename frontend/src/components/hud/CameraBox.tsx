@@ -69,7 +69,7 @@ export default function CameraBox() {
     }
   }
 
-  /* ---------- Auto PiP when leaving /live ---------- */
+  /* ---------- Auto PiP when leaving live ---------- */
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -90,7 +90,7 @@ export default function CameraBox() {
           await video.requestPictureInPicture();
           setPiP(true);
         } catch {
-          // browser may block without user gesture
+          
         }
       }
     }

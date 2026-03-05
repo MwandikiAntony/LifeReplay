@@ -103,7 +103,7 @@ export default function NavigationHUD() {
         </p>
       </div>
 
-      {/* WebSocket / AI status */}
+      {/* AI status */}
       <div className="flex justify-center mb-10">
         <WebSocketStatus />
       </div>
