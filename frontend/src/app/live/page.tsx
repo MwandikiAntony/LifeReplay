@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { startMockWebSocket } from "@/components/engine/WebSocketClient";
+import { startWebSocket } from "@/components/engine/WebSocketClient";
 import CameraBox from "@/components/hud/CameraBox";
 import DetectionOverlay from "@/components/hud/DetectionOverlay";
 import CoachPanel from "@/components/coach/CoachPanel";
@@ -9,7 +9,7 @@ import WebSocketStatus from "@/components/system/WebSocketStatus";
 
 export default function LivePage() {
   useEffect(() => {
-    startMockWebSocket();
+    startWebSocket();
   }, []);
 
   return (
