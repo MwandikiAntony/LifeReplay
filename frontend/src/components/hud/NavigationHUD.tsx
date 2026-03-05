@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 import { AudioEngine } from "@/components/engine/AudioEngine";
 import { SpeechActivityDetector } from "@/components/engine/SpeechActivityDetector";
-import { startMockWebSocket } from "@/components/engine/WebSocketClient";
+import { sendAudio, startWebSocket } from "@/components/engine/WebSocketClient";
 import { useSessionStore } from "@/lib/sessionStore";
 import WebSocketStatus from "@/components/system/WebSocketStatus";
 import { SessionRecorder } from "@/lib/sessionRecorder";
@@ -20,13 +20,24 @@ export default function NavigationHUD() {
   const audioEngine = useRef<AudioEngine | null>(null);
   const vad = useRef<SpeechActivityDetector | null>(null);
   const recorder = useRef<SessionRecorder | null>(null);
-
+  const addTranscript = useSessionStore((s) => s.addTranscript);
   const sessionState = useSessionStore((s) => s.state);
 
   /* ---------- WebSocket lifecycle ---------- */
   useEffect(() => {
-    startMockWebSocket();
-  }, []);
+  startWebSocket("ws://localhost:5000", (msg) => {
+
+    if (msg.type === "transcript") {
+      console.log("Transcript:", msg.text);
+
+      recorder.current?.recordEvent({
+        type: "transcript",
+        text: msg.text
+      });
+    }
+
+  });
+}, []);
 
   /* ---------- Whisper coaching ---------- */
   useEffect(() => {
@@ -54,6 +65,7 @@ export default function NavigationHUD() {
         });
 
         await audioEngine.current!.start(stream, (chunkBuffer) => {
+          sendAudio(chunkBuffer);
           /* --- Record raw PCM16 --- */
           recorder.current?.recordAudio(chunkBuffer);
 

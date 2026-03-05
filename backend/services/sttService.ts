@@ -1,20 +1,34 @@
-import { spawn } from "child_process";
+import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 
-export class STTService {
-  private process: any;
+class STTService {
+  private process: ChildProcessWithoutNullStreams | null = null;
 
-  start() {
-    this.process = spawn("python", ["whisper_stream.py"]);
+  public onTranscript?: (text: string) => void;
+
+  start(): void {
+    this.process = spawn("python", ["python/whisper_stream.py"]);
 
     this.process.stdout.on("data", (data: Buffer) => {
-      const transcript = data.toString();
-      this.onTranscript?.(transcript);
+      const text = data.toString().trim();
+
+      if (this.onTranscript) {
+        this.onTranscript(text);
+      }
     });
   }
 
-  sendAudio(chunk: Buffer) {
-    this.process.stdin.write(chunk);
+  sendAudio(buffer: Buffer): void {
+    if (this.process) {
+      this.process.stdin.write(buffer);
+    }
   }
 
-  onTranscript?: (text: string) => void;
+  stop(): void {
+    if (this.process) {
+      this.process.kill();
+      this.process = null;
+    }
+  }
 }
+
+export default STTService;

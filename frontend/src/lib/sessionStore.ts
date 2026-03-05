@@ -1,19 +1,13 @@
 import { create } from "zustand";
 
-export type SessionState = "idle" | "live" | "paused";
+export const useSessionStore = create((set) => ({
+  transcript: [],
 
-interface SessionStore {
-  state: SessionState;
-  feedback: string | null;
-
-  setState: (state: SessionState) => void;
-  setFeedback: (message: string | null) => void;
-}
-
-export const useSessionStore = create<SessionStore>((set) => ({
-  state: "idle",
-  feedback: null,
-
-  setState: (state) => set({ state }),
-  setFeedback: (feedback) => set({ feedback }),
+  addTranscript: (text: string) =>
+    set((state: any) => ({
+      transcript: [
+        ...state.transcript,
+        { text, time: Date.now() },
+      ],
+    })),
 }));

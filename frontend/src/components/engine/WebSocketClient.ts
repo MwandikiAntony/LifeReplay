@@ -1,10 +1,22 @@
-import { useSessionStore } from "@/lib/sessionStore";
+let socket: WebSocket | null = null;
 
-export function startMockWebSocket() {
-  const { setState } = useSessionStore.getState();
+export function startWebSocket(url: string, onMessage: any) {
+  socket = new WebSocket(url);
 
-  // Simulate connection lifecycle
-  setTimeout(() => setState("live"), 1500);
-  setTimeout(() => setState("paused"), 12000);
-  setTimeout(() => setState("live"), 18000);
+  socket.onopen = () => {
+    console.log("Connected to backend");
+  };
+
+  socket.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    onMessage(msg);
+  };
+
+  return socket;
+}
+
+export function sendAudio(data: ArrayBuffer) {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(data);
+  }
 }
