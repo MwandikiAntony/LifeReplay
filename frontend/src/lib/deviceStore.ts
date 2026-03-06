@@ -1,5 +1,8 @@
+"use client";
+
 import { create } from "zustand";
 
+/* ---------- Device Store ---------- */
 type CameraDevice = {
   deviceId: string;
   label: string;

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useDeviceStore } from "@/lib/deviceStore";
 
+/* ---------- WebSocket Hook ---------- */
 export function useWebSocket(url: string) {
   const socketRef = useRef<WebSocket | null>(null);
   const lastPingRef = useRef<number>(Date.now());
@@ -11,26 +12,29 @@ export function useWebSocket(url: string) {
     socketRef.current = new WebSocket(url);
 
     socketRef.current.onopen = () => {
-      console.log("Connected to backend");
+      console.log("🔗 Connected to backend");
 
-      // Start heartbeat
-      setInterval(() => {
+      // Start heartbeat every 2 seconds
+      const interval = setInterval(() => {
         lastPingRef.current = Date.now();
-        socketRef.current?.send(JSON.stringify({ type: "ping" }));
+        if (socketRef.current?.readyState === WebSocket.OPEN) {
+          socketRef.current.send(JSON.stringify({ type: "ping" }));
+        }
       }, 2000);
+
+      return () => clearInterval(interval);
     };
 
     socketRef.current.onmessage = () => {
       const latency = Date.now() - lastPingRef.current;
-
-      const quality =
+      const quality: "good" | "medium" | "poor" =
         latency < 150 ? "good" : latency < 400 ? "medium" : "poor";
 
-      useDeviceStore.getState().setConnection(quality);
+      useDeviceStore.getState().setConnectionQuality(quality);
     };
 
     socketRef.current.onclose = () => {
-      useDeviceStore.getState().setConnection("poor");
+      useDeviceStore.getState().setConnectionQuality("poor");
     };
 
     return () => {

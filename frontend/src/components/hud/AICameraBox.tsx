@@ -9,9 +9,9 @@ export default function AICameraBox({ compact = false }: { compact?: boolean }) 
   const videoRef = useRef<HTMLVideoElement>(null);
   const pathname = usePathname();
   const { stream } = useCamera();
-  
+
   const setPiPActive = useDeviceStore((s) => s.setPiPActive);
-  
+
   const [error, setError] = useState<string | null>(null);
   const [pipSupported, setPipSupported] = useState(false);
 
@@ -60,6 +60,7 @@ export default function AICameraBox({ compact = false }: { compact?: boolean }) 
         } catch {}
       }
     }
+
     autoEnterPiP();
 
     return () => video.removeEventListener("leavepictureinpicture", handleLeavePiP);
@@ -80,10 +81,27 @@ export default function AICameraBox({ compact = false }: { compact?: boolean }) 
     );
   }
 
-  const togglePause = () => {
+  /* ---------- PLAY / PAUSE ---------- */
+  const togglePause = async () => {
     if (!videoRef.current) return;
-    paused ? videoRef.current.play() : videoRef.current.pause();
-    setPaused(!paused);
+
+    const video = videoRef.current;
+
+    try {
+      if (paused) {
+        if (!video.srcObject && stream) {
+          video.srcObject = stream; // reconnect stream
+        }
+
+        await video.play();
+        setPaused(false);
+      } else {
+        video.pause();
+        setPaused(true);
+      }
+    } catch (err) {
+      console.warn("Video play interrupted:", err);
+    }
   };
 
   return (
@@ -104,60 +122,78 @@ export default function AICameraBox({ compact = false }: { compact?: boolean }) 
         LIVE
       </div>
 
-      
       {/* VIDEO CONTROLS */}
-<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 sm:gap-2 bg-black/60 p-1 sm:p-2 rounded-xl items-center">
-  {/* Microphone toggle */}
-  <button
-    onClick={() => console.log("Mic button pressed")}
-    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
-  >
-    🎤
-  </button>
+      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 sm:gap-2 bg-black/60 p-1 sm:p-2 rounded-xl items-center">
 
-  {/* Camera toggle */}
-  <button
-    onClick={() => console.log("Camera button pressed")}
-    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--cyan)] rounded-full text-[var(--cyan)] hover:bg-black/80 hover:scale-105 transition"
-  >
-    📹
-  </button>
+        {/* Microphone */}
+        <button
+          title="Microphone"
+          onClick={() => console.log("Mic button pressed")}
+          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
+        >
+          🎤
+        </button>
 
-  {/* Play / Pause */}
-  <button
-    onClick={togglePause}
-    className="w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center text-xl sm:text-2xl border-2 border-[var(--amber)] rounded-full text-[var(--amber)] bg-black/70 hover:bg-black/80 hover:scale-105 transition"
-  >
-    {paused ? "▶️" : "⏸"}
-  </button>
+        {/* Camera */}
+        <button
+          title="Camera"
+          onClick={() => console.log("Camera button pressed")}
+          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--cyan)] rounded-full text-[var(--cyan)] hover:bg-black/80 hover:scale-105 transition"
+        >
+          📹
+        </button>
 
-  {/* Volume toggle */}
-  <button
-    onClick={() => setMuted(!muted)}
-    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
-  >
-    🔊
-  </button>
+        {/* Play / Pause */}
+        <button
+          title={paused ? "Play" : "Pause"}
+          onClick={togglePause}
+          className="w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center text-xl sm:text-2xl border-2 border-[var(--amber)] rounded-full text-[var(--amber)] bg-black/70 hover:bg-black/80 hover:scale-105 transition"
+        >
+          {paused ? "▶️" : "⏸"}
+        </button>
 
-  {/* Stop */}
-  <button
-    onClick={() => {
-      if (!videoRef.current) return;
-      videoRef.current.pause();
-      videoRef.current.srcObject = null;
-      setPaused(true);
-      setMuted(true);
-    }}
-    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--red)] rounded-full text-[var(--red)] hover:bg-black/80 hover:scale-105 transition"
-  >
-    ⏹
-  </button>
-</div>
+        {/* Volume */}
+        <button
+          title="Toggle Volume"
+          onClick={() => setMuted(!muted)}
+          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
+        >
+          🔊
+        </button>
 
-      {/* PiP Button */}
+        {/* Stop */}
+        <button
+          title="Stop"
+          onClick={async () => {
+            if (!videoRef.current) return;
+
+            try {
+              const video = videoRef.current;
+
+              video.pause();
+
+              await new Promise((r) => requestAnimationFrame(r));
+
+              video.srcObject = null;
+
+              setPaused(true);
+              setMuted(true);
+            } catch (err) {
+              console.warn("Stop interrupted:", err);
+            }
+          }}
+          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--red)] rounded-full text-[var(--red)] hover:bg-black/80 hover:scale-105 transition"
+        >
+          ⏹
+        </button>
+
+      </div>
+
+      {/* PiP */}
       {pipSupported && (
         <button
           onClick={enablePiP}
+          title="Picture in Picture"
           className="absolute top-4 right-4 text-[10px] sm:text-xs bg-black/60 border border-[var(--border)] px-2 sm:px-3 py-1 rounded font-mono uppercase tracking-widest hover:border-[var(--border-bright)]"
         >
           PiP

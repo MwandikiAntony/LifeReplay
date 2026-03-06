@@ -79,3 +79,72 @@ body {
   border-color: var(--red-500);
   color: var(--red-500);
 }
+
+/* ========================= */
+/* LIFE REPLAY AI VISION HUD */
+/* ========================= */
+
+/* scanning line */
+.ai-scan-line{
+  position:absolute;
+  left:0;
+  width:100%;
+  height:3px;
+
+  background:linear-gradient(
+    90deg,
+    transparent,
+    var(--cyan),
+    transparent
+  );
+
+  box-shadow:0 0 10px var(--cyan), 0 0 20px var(--cyan-glow);
+
+  animation:scanMove 2.5s linear infinite;
+}
+@keyframes scanMove{
+  0%{
+    top:-5%;
+    opacity:0;
+  }
+  10%{
+    opacity:1;
+  }
+  90%{
+    opacity:1;
+  }
+  100%{
+    top:105%;
+    opacity:0;
+  }
+}
+
+
+/* AI pulse indicator */
+.ai-pulse{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:var(--cyan);
+  transform:translate(-50%,-50%);
+  animation:pulseAI 2s infinite;
+  box-shadow:0 0 10px var(--cyan);
+}
+
+@keyframes pulseAI{
+  0%{
+    transform:translate(-50%,-50%) scale(0.8);
+    opacity:0.6;
+  }
+  50%{
+    transform:translate(-50%,-50%) scale(1.3);
+    opacity:1;
+  }
+  100%{
+    transform:translate(-50%,-50%) scale(0.8);
+    opacity:0.6;
+  }
+}

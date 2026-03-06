@@ -20,12 +20,8 @@ export default function LiveStream() {
         audio: true,
       })
       .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        if (miniVideoRef.current) {
-          miniVideoRef.current.srcObject = stream;
-        }
+        if (videoRef.current) videoRef.current.srcObject = stream;
+        if (miniVideoRef.current) miniVideoRef.current.srcObject = stream;
 
         const recorder = new MediaRecorder(stream);
 
@@ -118,12 +114,33 @@ export default function LiveStream() {
         LIVE
       </div>
 
-      {/* Pulse Animation */}
+      {/* Responsive Styles */}
       <style>{`
         @keyframes pulse {
           0% { transform: scale(1); opacity: 1; }
           50% { transform: scale(1.4); opacity: 0.6; }
           100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+          video {
+            max-width: 100% !important;
+          }
+
+          /* Mini video adjusts size and position on mobile */
+          video:nth-of-type(2) {
+            width: 40% !important;
+            max-width: 120px !important;
+            bottom: 8px !important;
+            right: 8px !important;
+          }
+
+          /* Live indicator smaller on mobile */
+          div[style*="LIVE"] {
+            font-size: 12px !important;
+            gap: 4px !important;
+            padding: 3px 6px !important;
+          }
         }
       `}</style>
     </div>
