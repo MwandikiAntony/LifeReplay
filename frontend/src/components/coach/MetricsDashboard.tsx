@@ -10,22 +10,25 @@ const metrics = [
 
 export default function MetricsDashboard() {
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex overflow-x-auto gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {metrics.map((m) => (
           <div
             key={m.label}
-            className="flex-none w-64 bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-4 sm:p-6 flex flex-col"
+            className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-4 sm:p-6 flex flex-col hover:scale-105 transform transition-all duration-300"
           >
-            <div className="font-mono text-[10px] sm:text-xs md:text-sm uppercase tracking-widest mb-1 sm:mb-2">
+            {/* Label */}
+            <div className="font-mono text-[10px] sm:text-xs md:text-sm uppercase tracking-widest mb-1 sm:mb-2 text-[var(--text-secondary)]">
               {m.label}
             </div>
 
+            {/* Value */}
             <div className="text-xl sm:text-2xl md:text-4xl font-bold text-[var(--cyan)]">
               {m.value}%
             </div>
 
-            <div className="mt-2 sm:mt-3 h-2 sm:h-3 bg-[var(--bg-surface)] rounded w-full">
+            {/* Progress bar */}
+            <div className="mt-2 sm:mt-3 h-2 sm:h-3 bg-[var(--bg-surface)] rounded w-full overflow-hidden">
               <div
                 className="h-full bg-[var(--cyan)] rounded transition-all duration-500"
                 style={{ width: `${m.value}%` }}
