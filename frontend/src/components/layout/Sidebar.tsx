@@ -4,9 +4,15 @@ import Link from "next/link";
 import { Home, Video, BarChart2, Settings, LifeBuoy } from "lucide-react";
 import { useState } from "react";
 
-export default function Sidebar() {
+export default function Sidebar({
+  collapsed,
+  setCollapsed,
+}: {
+  collapsed: boolean;
+  setCollapsed: (v: boolean) => void;
+}) {
+
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
 
   const menu = [
     { name: "Dashboard", icon: <Home size={20} />, href: "/" },
@@ -20,7 +26,7 @@ export default function Sidebar() {
     <>
       {/* MOBILE HAMBURGER */}
       <button
-        className="fixed top-[70px] left-3 z-50 md:hidden bg-gray-700 text-white p-2 rounded"
+        className="fixed top-[72px] left-3 z-50 md:hidden bg-gray-700 text-white p-2 rounded"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         ☰
@@ -37,52 +43,42 @@ export default function Sidebar() {
       {/* SIDEBAR */}
       <aside
         className={`
-        fixed
-        top-[64px]
-        left-0
-        h-[calc(100vh-64px)]
-        bg-gray-800
-        flex
-        flex-col
-        overflow-y-auto
-        transition-all
-        duration-300
-        z-40
-        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0
-        ${desktopCollapsed ? "md:w-[70px]" : "md:w-[190px]"}
-        w-[190px]
-      `}
+          fixed top-[64px] left-0
+          h-[calc(100vh-64px)]
+          bg-gray-800 flex flex-col p-2 overflow-y-auto
+          z-40 transition-all duration-300
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+          ${collapsed ? "md:w-20" : "md:w-48"}
+          w-64
+        `}
       >
+
         {/* DESKTOP COLLAPSE BUTTON */}
         <button
-          className="hidden md:flex items-center justify-center text-gray-400 hover:text-white p-3"
-          onClick={() => setDesktopCollapsed(!desktopCollapsed)}
+          className="hidden md:block text-gray-400 hover:text-white p-2 mb-2"
+          onClick={() => setCollapsed(!collapsed)}
         >
           ☰
         </button>
 
-        {/* MENU */}
-        <div className="flex flex-col px-2">
-          {menu.map((item) => (
-            <Link key={item.name} href={item.href}>
-              <div
-                className="flex items-center gap-3 p-2 my-1 rounded hover:bg-gray-700 cursor-pointer transition"
-                onClick={() => setMobileOpen(false)}
-              >
-                {/* ICON */}
-                <div className="text-gray-300 flex justify-center w-6">
-                  {item.icon}
-                </div>
+        {menu.map((item) => (
+          <Link key={item.name} href={item.href}>
+            <div
+              className="flex items-center p-2 my-1 rounded hover:bg-gray-700 cursor-pointer transition"
+              onClick={() => setMobileOpen(false)}
+            >
+              <div className="text-gray-300">{item.icon}</div>
 
-                {/* TEXT */}
-                {!desktopCollapsed && (
-                  <span className="text-gray-200 text-sm">{item.name}</span>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
+              {!collapsed && (
+                <span className="ml-3 text-gray-200">
+                  {item.name}
+                </span>
+              )}
+            </div>
+          </Link>
+        ))}
+
       </aside>
     </>
   );

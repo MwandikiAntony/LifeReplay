@@ -22,7 +22,7 @@ export default function Navbar() {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="fixed top-0 inset-x-0 md:left-[240px] h-[64px] z-50 bg-[rgba(5,13,20,0.92)] backdrop-blur border-b border-[var(--border)] px-4 sm:px-6 md:px-8 flex items-center justify-between">
+      <nav className="fixed top-0 inset-x-0 h-[64px] z-50 bg-[rgba(5,13,20,0.92)] backdrop-blur border-b border-[var(--border)] px-4 sm:px-6 md:px-8 flex items-center justify-between">
 
         {/* Brand */}
         <span className="font-semibold tracking-widest text-sm sm:text-base">

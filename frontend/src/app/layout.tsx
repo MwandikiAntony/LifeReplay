@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import "@/app/global.css";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
@@ -10,6 +13,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   return (
     <html lang="en">
       <body>
@@ -17,13 +23,17 @@ export default function RootLayout({
 
           <Navbar />
 
-          {/* Layout */}
           <div className="flex pt-[64px]">
 
-            <Sidebar />
+            <Sidebar
+              collapsed={sidebarCollapsed}
+              setCollapsed={setSidebarCollapsed}
+            />
 
-            {/* Content */}
-            <main className="flex-1 p-4">
+            <main
+              className={`flex-1 p-4 transition-all duration-300
+              ${sidebarCollapsed ? "md:ml-20" : "md:ml-48"}`}
+            >
               {children}
             </main>
 

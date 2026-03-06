@@ -42,13 +42,21 @@ export default function LiveStream() {
   }, []);
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "10px",
+      }}
+    >
       <video
         ref={videoRef}
         autoPlay
         playsInline
         style={{
-          width: "400px",
+          width: "100%",       // full width on mobile
+          maxWidth: "600px",   // limit width on desktop
           borderRadius: "12px",
           border: "2px solid black",
         }}
