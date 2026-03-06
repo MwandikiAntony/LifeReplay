@@ -1,7 +1,7 @@
 "use client";
 
 import MetricsDashboard from "@/components/coach/MetricsDashboard";
-import Footer from "@/components/layout/Footer";
+
 
 export default function MetricsPage() {
   return (
@@ -20,7 +20,7 @@ export default function MetricsPage() {
         <MetricsDashboard />
       </main>
 
-      <Footer />
+
     </div>
   );
 }
