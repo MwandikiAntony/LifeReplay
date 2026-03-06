@@ -55,8 +55,11 @@ export default function AICameraBox({ compact = false }: { compact?: boolean }) 
     async function autoEnterPiP() {
       if (pathname !== "/live" && pipSupported && !document.pictureInPictureElement) {
         try {
-          await video.requestPictureInPicture();
-          setPiPActive(true);
+          if (video) {
+  await video.requestPictureInPicture();
+  setPiPActive(true);
+}
+          
         } catch {}
       }
     }
