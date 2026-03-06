@@ -12,6 +12,7 @@ import { SessionRecorder } from "@/lib/sessionRecorder";
 import ConfidenceHUD from "./confidenceHUD";
 import { whisper } from "@/lib/whisperTTS";
 import { useDeviceStore } from "@/lib/deviceStore";
+
 export default function NavigationHUD() {
   const [speaking, setSpeaking] = useState(false);
   const [confidence, setConfidence] = useState(0);
@@ -23,46 +24,29 @@ export default function NavigationHUD() {
   const addTranscript = useSessionStore((s) => s.addTranscript);
   const sessionState = useSessionStore((s) => s.state);
   const setMicActive = useDeviceStore.getState().setMicActive;
+
   /* ---------- WebSocket lifecycle ---------- */
   useEffect(() => {
-  startWebSocket("ws://localhost:5000", (msg) => {
-
-  if (msg.type === "transcript") {
-
-    addTranscript(msg.text)
-
-    recorder.current?.recordEvent({
-      type: "transcript",
-      text: msg.text
-    })
-
-  }
-
-  if (msg.type === "coach") {
-
-    recorder.current?.recordEvent({
-      type: "coach",
-      advice: msg.advice
-    })
-
-    console.log("AI Coach Advice:", msg.advice)
-
-  }
-
-});
-}, []);
+    startWebSocket("ws://localhost:5000", (msg) => {
+      if (msg.type === "transcript") {
+        addTranscript(msg.text);
+        recorder.current?.recordEvent({ type: "transcript", text: msg.text });
+      }
+      if (msg.type === "coach") {
+        recorder.current?.recordEvent({ type: "coach", advice: msg.advice });
+        console.log("AI Coach Advice:", msg.advice);
+      }
+    });
+  }, []);
 
   /* ---------- Whisper coaching ---------- */
   useEffect(() => {
-  if (!hasSpokenOnce.current) return;
-
-  const silenceDuration = Date.now() - lastSpeechTime.current;
-
-  // Speak only after real silence (e.g. 2 seconds)
-  if (!speaking && silenceDuration > 2000 && confidence < 50) {
-    whisper("Slow down. Speak with intention.");
-  }
-}, [speaking, confidence]);
+    if (!hasSpokenOnce.current) return;
+    const silenceDuration = Date.now() - lastSpeechTime.current;
+    if (!speaking && silenceDuration > 2000 && confidence < 50) {
+      whisper("Slow down. Speak with intention.");
+    }
+  }, [speaking, confidence]);
 
   /* ---------- Audio + VAD + Recording ---------- */
   useEffect(() => {
@@ -72,27 +56,20 @@ export default function NavigationHUD() {
 
     async function initAudio() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false,
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         setMicActive(true);
 
         await audioEngine.current!.start(stream, (chunkBuffer) => {
           sendAudio(chunkBuffer);
-          /* --- Record raw PCM16 --- */
           recorder.current?.recordAudio(chunkBuffer);
 
-          /* --- PCM16 → Float32 for VAD --- */
           const floatData = new Float32Array(chunkBuffer.byteLength / 2);
           const view = new DataView(chunkBuffer);
-
           for (let i = 0; i < floatData.length; i++) {
             floatData[i] = view.getInt16(i * 2, true) / 0x7fff;
           }
 
-          /* --- Voice activity detection --- */
-            vad.current?.process(floatData, (isSpeaking) => {
+          vad.current?.process(floatData, (isSpeaking) => {
             setSpeaking(isSpeaking);
             recorder.current?.recordSpeech(isSpeaking);
 
@@ -111,26 +88,26 @@ export default function NavigationHUD() {
     }
 
     initAudio();
-return () => {
-  audioEngine.current?.stop();
-  useDeviceStore.getState().setMicActive(false);
-};
+    return () => {
+      audioEngine.current?.stop();
+      useDeviceStore.getState().setMicActive(false);
+    };
   }, []);
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-b from-black to-gray-950 text-white px-6 py-16">
-      <div className="max-w-6xl mx-auto text-center mb-8">
-        <h2 className="text-3xl md:text-5xl font-bold">
+    <section className="relative min-h-screen bg-gradient-to-b from-black to-gray-950 text-white px-4 sm:px-6 py-12 sm:py-16">
+      <div className="max-w-4xl sm:max-w-6xl mx-auto text-center mb-6 sm:mb-8 px-2 sm:px-0">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-tight">
           LifeReplay Live Monitor
         </h2>
-        <p className="text-sm text-gray-400 mt-2">
+        <p className="text-xs sm:text-sm text-gray-400 mt-1 sm:mt-2">
           Session state:{" "}
           <span className="uppercase font-mono">{sessionState}</span>
         </p>
       </div>
 
       {/* AI status */}
-      <div className="flex justify-center mb-10">
+      <div className="flex justify-center mb-6 sm:mb-10">
         <WebSocketStatus />
       </div>
 
@@ -141,7 +118,7 @@ return () => {
       <motion.div
         animate={{ scale: speaking ? 1.3 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className={`fixed bottom-6 right-6 w-6 h-6 rounded-full ${
+        className={`fixed bottom-2 sm:bottom-6 right-2 sm:right-6 w-5 sm:w-6 h-5 sm:h-6 rounded-full ${
           speaking ? "bg-green-500" : "bg-gray-500"
         } shadow-xl`}
       />
