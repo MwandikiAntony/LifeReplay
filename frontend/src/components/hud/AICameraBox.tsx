@@ -104,54 +104,55 @@ export default function AICameraBox({ compact = false }: { compact?: boolean }) 
         LIVE
       </div>
 
+      
       {/* VIDEO CONTROLS */}
-      <div className="absolute bottom-2 right-2 flex gap-1 sm:gap-2 bg-black/60 p-1 sm:p-2 rounded-xl items-center">
-        {/* Microphone toggle */}
-        <button
-          onClick={() => console.log("Mic button pressed")}
-          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
-        >
-          🎤
-        </button>
+<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 sm:gap-2 bg-black/60 p-1 sm:p-2 rounded-xl items-center">
+  {/* Microphone toggle */}
+  <button
+    onClick={() => console.log("Mic button pressed")}
+    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
+  >
+    🎤
+  </button>
 
-        {/* Camera toggle */}
-        <button
-          onClick={() => console.log("Camera button pressed")}
-          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--cyan)] rounded-full text-[var(--cyan)] hover:bg-black/80 hover:scale-105 transition"
-        >
-          📹
-        </button>
+  {/* Camera toggle */}
+  <button
+    onClick={() => console.log("Camera button pressed")}
+    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--cyan)] rounded-full text-[var(--cyan)] hover:bg-black/80 hover:scale-105 transition"
+  >
+    📹
+  </button>
 
-        {/* Play / Pause */}
-        <button
-          onClick={togglePause}
-          className="w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center text-xl sm:text-2xl border-2 border-[var(--amber)] rounded-full text-[var(--amber)] bg-black/70 hover:bg-black/80 hover:scale-105 transition"
-        >
-          {paused ? "▶️" : "⏸"}
-        </button>
+  {/* Play / Pause */}
+  <button
+    onClick={togglePause}
+    className="w-11 h-11 sm:w-13 sm:h-13 flex items-center justify-center text-xl sm:text-2xl border-2 border-[var(--amber)] rounded-full text-[var(--amber)] bg-black/70 hover:bg-black/80 hover:scale-105 transition"
+  >
+    {paused ? "▶️" : "⏸"}
+  </button>
 
-        {/* Volume toggle */}
-        <button
-          onClick={() => setMuted(!muted)}
-          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
-        >
-          🔊
-        </button>
+  {/* Volume toggle */}
+  <button
+    onClick={() => setMuted(!muted)}
+    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--border)] rounded-full text-white hover:bg-black/80 hover:scale-105 transition"
+  >
+    🔊
+  </button>
 
-        {/* Stop */}
-        <button
-          onClick={() => {
-            if (!videoRef.current) return;
-            videoRef.current.pause();
-            videoRef.current.srcObject = null;
-            setPaused(true);
-            setMuted(true);
-          }}
-          className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--red)] rounded-full text-[var(--red)] hover:bg-black/80 hover:scale-105 transition"
-        >
-          ⏹
-        </button>
-      </div>
+  {/* Stop */}
+  <button
+    onClick={() => {
+      if (!videoRef.current) return;
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+      setPaused(true);
+      setMuted(true);
+    }}
+    className="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center text-lg sm:text-xl bg-black/70 border-2 border-[var(--red)] rounded-full text-[var(--red)] hover:bg-black/80 hover:scale-105 transition"
+  >
+    ⏹
+  </button>
+</div>
 
       {/* PiP Button */}
       {pipSupported && (

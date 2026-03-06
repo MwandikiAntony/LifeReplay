@@ -48,6 +48,9 @@ export default function LiveStream() {
         justifyContent: "center",
         alignItems: "center",
         padding: "10px",
+        width: "100%",
+        height: "100%", // allows container to grow if needed
+        boxSizing: "border-box",
       }}
     >
       <video
@@ -55,10 +58,12 @@ export default function LiveStream() {
         autoPlay
         playsInline
         style={{
-          width: "100%",       // full width on mobile
-          maxWidth: "600px",   // limit width on desktop
+          width: "100%",          // fill container width
+          maxWidth: "600px",      // desktop max width
+          aspectRatio: "16/9",    // maintain 16:9 aspect ratio
           borderRadius: "12px",
           border: "2px solid black",
+          objectFit: "cover",     // ensures video scales nicely
         }}
       />
     </div>
