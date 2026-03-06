@@ -26,32 +26,29 @@ function startSocketServer(): void {
     /* ---------- TRANSCRIPT CALLBACK ---------- */
 
     stt.onTranscript = (text: string) => {
-      console.log("Transcript:", text);
 
-      /* Send transcript to frontend */
+  console.log("Transcript:", text); 
 
-      ws.send(
-        JSON.stringify({
-          type: "transcript",
-          text,
-          time: Date.now(),
-        })
-      );
+  ws.send(
+    JSON.stringify({
+      type: "transcript",
+      text,
+      time: Date.now(),
+    })
+  )
 
-      /* ---------- AI Conversation Intelligence ---------- */
+  const result = analyzeConversation(text)
 
-      const result = analyzeConversation(text);
-
-      if (result.advice && result.advice.length > 0) {
-        ws.send(
-          JSON.stringify({
-            type: "coach",
-            advice: result.advice,
-            time: Date.now(),
-          })
-        );
-      }
-    };
+  if (result.advice.length > 0) {
+    ws.send(
+      JSON.stringify({
+        type: "coach",
+        advice: result.advice,
+        time: Date.now(),
+      })
+    )
+  }
+};
 
     /* ---------- CLEANUP ---------- */
 
