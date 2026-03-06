@@ -22,24 +22,24 @@ export default function Navbar() {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="fixed top-0 inset-x-0 h-[64px] z-50 bg-[rgba(5,13,20,0.92)] backdrop-blur border-b border-[var(--border)] px-4 md:px-6 flex items-center justify-between">
+      <nav className="fixed top-0 inset-x-0 md:left-[240px] h-[64px] z-50 bg-[rgba(5,13,20,0.92)] backdrop-blur border-b border-[var(--border)] px-4 sm:px-6 md:px-8 flex items-center justify-between">
 
         {/* Brand */}
-        <span className="font-semibold tracking-widest text-sm md:text-base">
+        <span className="font-semibold tracking-widest text-sm sm:text-base">
           LIFE<span className="text-cyan-400">REPLAY</span>
         </span>
 
         {/* Desktop system indicators */}
-        <div className="hidden md:flex items-center gap-6 text-xs font-mono text-gray-400">
+        <div className="hidden md:flex items-center gap-4 lg:gap-6 text-xs sm:text-sm font-mono text-gray-400">
 
           {/* Network */}
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1 sm:gap-2">
             <span className={`w-2 h-2 rounded-full ${qualityColor}`} />
             NET
           </span>
 
           {/* Mic */}
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1 sm:gap-2">
             <span
               className={`w-2 h-2 rounded-full ${
                 micActive ? "bg-red-500 animate-pulse" : "bg-gray-500"
@@ -49,7 +49,7 @@ export default function Navbar() {
           </span>
 
           {/* Camera */}
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1 sm:gap-2">
             <span
               className={`w-2 h-2 rounded-full ${
                 cameraActive ? "bg-cyan-400" : "bg-gray-500"
@@ -59,12 +59,10 @@ export default function Navbar() {
           </span>
 
           {/* PiP */}
-          {pipActive && (
-            <span className="text-cyan-400">PiP</span>
-          )}
+          {pipActive && <span className="text-cyan-400">PiP</span>}
 
           {/* Session */}
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1 sm:gap-2">
             <span
               className={`w-2 h-2 rounded-full ${
                 sessionState === "live"
@@ -72,7 +70,7 @@ export default function Navbar() {
                   : "bg-gray-500"
               }`}
             />
-           {(sessionState || "idle").toUpperCase()}
+            {(sessionState || "idle").toUpperCase()}
           </span>
 
           {/* Command hint */}
@@ -83,7 +81,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-gray-300 text-xl"
+          className="md:hidden text-gray-300 text-2xl sm:text-3xl"
           onClick={() => setMobileOpen((v) => !v)}
         >
           ☰
@@ -93,7 +91,7 @@ export default function Navbar() {
       {/* MOBILE MENU */}
       {mobileOpen && (
         <div className="fixed top-[64px] inset-x-0 z-40 bg-[#060d14] border-b border-[var(--border)] md:hidden">
-          <div className="flex flex-col px-6 py-4 gap-4 text-sm text-gray-300">
+          <div className="flex flex-col px-4 sm:px-6 py-4 gap-3 sm:gap-4 text-sm sm:text-base text-gray-300">
 
             {/* Navigation */}
             <Link href="/" onClick={() => setMobileOpen(false)}>
@@ -113,7 +111,7 @@ export default function Navbar() {
             </Link>
 
             {/* Divider */}
-            <div className="border-t border-[var(--border)] pt-3 mt-2 text-xs text-gray-400 space-y-2">
+            <div className="border-t border-[var(--border)] pt-3 mt-2 text-xs sm:text-sm text-gray-400 space-y-2">
 
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${qualityColor}`} />

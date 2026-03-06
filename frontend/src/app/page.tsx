@@ -8,8 +8,7 @@ export default function DashboardPage() {
     <div className="space-y-4">
       <Hero />
       
-      <NavigationHUD />
-      <CoachPanel />
+      
     </div>
   );
 }
