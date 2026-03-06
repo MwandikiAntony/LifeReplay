@@ -40,3 +40,42 @@ body {
   color: var(--text-primary);
   font-family: var(--font-body);
 }
+/* Video Controls */
+.video-controls {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 6px 8px;
+  border-radius: 12px;
+  align-items: center;
+}
+
+.video-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.video-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(1.05);
+}
+
+.video-btn.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.video-btn.danger {
+  border-color: var(--red-500);
+  color: var(--red-500);
+}

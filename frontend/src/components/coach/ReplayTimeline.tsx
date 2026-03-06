@@ -8,8 +8,8 @@ export default function ReplayTimeline({
   const duration = markers.at(-1)?.time || 1;
 
   return (
-    <div className="w-full bg-black/70 border border-[var(--border)] rounded p-3">
-      <div className="flex h-3 relative">
+    <div className="w-full max-w-full sm:max-w-lg bg-black/70 border border-[var(--border)] rounded p-2 sm:p-3">
+      <div className="flex h-2 sm:h-3 relative">
         {markers.map((m, i) => (
           <div
             key={i}
@@ -20,7 +20,7 @@ export default function ReplayTimeline({
           />
         ))}
       </div>
-      <div className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">
+      <div className="text-[10px] sm:text-xs text-gray-400 mt-1 sm:mt-2 uppercase tracking-widest">
         Session Replay
       </div>
     </div>

@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import CommandPalette from "@/components/system/CommandPalette";
+import { CameraProvider } from "@/components/hud/CameraContext"
 
 export default function RootLayout({
   children,
@@ -12,6 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <CameraProvider>
         <Navbar />
         <div className="pt-[64px] flex">
           <Sidebar />
@@ -19,6 +21,7 @@ export default function RootLayout({
         </div>
         <CommandPalette/>
         <Footer />
+        </CameraProvider>
       </body>
     </html>
   );

@@ -44,8 +44,6 @@ export class AudioEngine {
   const input = event.data as Float32Array;
   const pcmData = this.convertFloatTo16BitPCM(input);
 
-  console.log("Audio chunk size:", pcmData.byteLength); // 👈 add this
-
   onChunk(pcmData);
 };
   }

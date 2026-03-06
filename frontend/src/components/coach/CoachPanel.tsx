@@ -12,25 +12,25 @@ export default function CoachPanel() {
   const state = useSessionStore((s) => s.state);
 
   useEffect(() => {
-  if (state !== "live") return;
+    if (state !== "live") return;
 
-  connectCoach((msg) => {
-    setFeedback(msg);
-    whisperSpeak(msg);
-  });
-}, [state]);
+    connectCoach((msg) => {
+      setFeedback(msg);
+      whisperSpeak(msg);
+    });
+  }, [state]);
 
   if (state !== "live") {
     return (
-      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4 text-xs text-[var(--text-secondary)]">
+      <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 sm:p-4 text-[10px] sm:text-xs text-[var(--text-secondary)] max-w-md mx-auto sm:mx-0">
         Coach standing by…
       </div>
     );
   }
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4">
-      <h3 className="font-mono text-xs uppercase tracking-widest text-[var(--cyan)] mb-2">
+    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 sm:p-4 max-w-md mx-auto sm:mx-0">
+      <h3 className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-[var(--cyan)] mb-2">
         LIVE COACH
       </h3>
 

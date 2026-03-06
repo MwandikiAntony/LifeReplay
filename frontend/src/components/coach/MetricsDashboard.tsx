@@ -10,21 +10,21 @@ const metrics = [
 
 export default function MetricsDashboard() {
   return (
-    <div className="grid grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {metrics.map((m) => (
         <div
           key={m.label}
-          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-6"
+          className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] p-4 sm:p-6"
         >
-          <div className="font-mono text-xs uppercase tracking-widest mb-2">
+          <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest mb-1 sm:mb-2">
             {m.label}
           </div>
 
-          <div className="text-4xl font-bold text-[var(--cyan)]">
+          <div className="text-2xl sm:text-4xl font-bold text-[var(--cyan)]">
             {m.value}%
           </div>
 
-          <div className="mt-3 h-2 bg-[var(--bg-surface)] rounded">
+          <div className="mt-2 sm:mt-3 h-2 bg-[var(--bg-surface)] rounded">
             <div
               className="h-full bg-[var(--cyan)] rounded"
               style={{ width: `${m.value}%` }}

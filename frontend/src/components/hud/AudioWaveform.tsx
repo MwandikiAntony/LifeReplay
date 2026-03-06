@@ -19,10 +19,16 @@ export default function AudioWaveform({
 
     // Improve sharpness on high-DPI screens
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = 200 * dpr;
-    canvas.height = 60 * dpr;
-    canvas.style.width = "200px";
-    canvas.style.height = "60px";
+    const width = 200;
+    const height = 60;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    // Responsive CSS sizing
+    canvas.style.width = "calc(90vw)";
+    canvas.style.maxWidth = "200px";
+    canvas.style.height = "calc(10vh)";
     ctx.scale(dpr, dpr);
 
     analyser.fftSize = 1024;
@@ -31,14 +37,14 @@ export default function AudioWaveform({
     const draw = () => {
       analyser.getByteTimeDomainData(buffer);
 
-      ctx.clearRect(0, 0, 200, 60);
+      ctx.clearRect(0, 0, width, height);
       ctx.strokeStyle = "#00e5ff";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
 
       buffer.forEach((v, i) => {
-        const x = (i / buffer.length) * 200;
-        const y = (v / 255) * 60;
+        const x = (i / buffer.length) * width;
+        const y = (v / 255) * height;
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
 
@@ -56,7 +62,7 @@ export default function AudioWaveform({
   return (
     <canvas
       ref={canvasRef}
-      className="fixed bottom-6 left-6 border border-[var(--border)] rounded bg-black/60"
+      className="fixed bottom-6 left-2 sm:left-6 border border-[var(--border)] rounded bg-black/60 w-[90vw] sm:w-[200px] h-16 sm:h-16 max-w-[200px]"
     />
   );
 }

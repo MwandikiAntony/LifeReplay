@@ -10,11 +10,11 @@ export default function CameraSelector() {
   if (!cameras.length) return null;
 
   return (
-    <div className="absolute top-4 left-4 z-20">
+    <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-20">
       <select
         value={selectedCamera ?? ""}
         onChange={(e) => setSelectedCamera(e.target.value)}
-        className="bg-black/70 border border-[var(--border)] px-3 py-1 rounded text-xs font-mono"
+        className="bg-black/70 border border-[var(--border)] px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-mono"
       >
         {cameras.map((cam) => (
           <option key={cam.deviceId} value={cam.deviceId}>
