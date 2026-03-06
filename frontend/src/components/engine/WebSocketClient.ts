@@ -45,7 +45,7 @@ export function startWebSocket(
 export function sendAudio(buffer: ArrayBuffer) {
   if (!socket) return;
   if (socket.readyState !== WebSocket.OPEN) return;
-
+  console.log("Sending audio to backend:", buffer.byteLength);
   socket.send(buffer);
 }
 

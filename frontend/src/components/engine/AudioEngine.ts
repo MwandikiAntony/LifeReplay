@@ -1,14 +1,15 @@
 import { useDeviceStore } from "@/lib/deviceStore";
+
 export class AudioEngine {
   private audioContext: AudioContext | null = null;
-  private processor: ScriptProcessorNode | null = null;
+  private processor: AudioWorkletNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private stream: MediaStream | null = null;
-   private analyser: AnalyserNode | null = null;
+  private analyser: AnalyserNode | null = null;
 
-getAnalyser() {
-  return this.analyser;
-}
+  getAnalyser() {
+    return this.analyser;
+  }
 
   async start(stream: MediaStream, onChunk: (data: ArrayBuffer) => void) {
     this.stream = stream;
@@ -20,22 +21,34 @@ getAnalyser() {
       await this.audioContext.resume();
     }
 
+    // Load worklet
+    await this.audioContext.audioWorklet.addModule(
+  `${window.location.origin}/audio-worklet.js`
+);
+
     this.source = this.audioContext.createMediaStreamSource(stream);
     useDeviceStore.getState().setMicActive(true);
-    this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
+
+    this.processor = new AudioWorkletNode(
+  this.audioContext,
+  "pcm-processor"
+);
 
     this.source.connect(this.processor);
     this.processor.connect(this.audioContext.destination);
+
     this.analyser = this.audioContext.createAnalyser();
     this.source.connect(this.analyser);
-    this.processor.onaudioprocess = (event) => {
-      const input = event.inputBuffer.getChannelData(0);
-      const pcmData = this.convertFloatTo16BitPCM(input);
-      onChunk(pcmData);
-    };
-  }
 
- 
+    this.processor.port.onmessage = (event) => {
+  const input = event.data as Float32Array;
+  const pcmData = this.convertFloatTo16BitPCM(input);
+
+  console.log("Audio chunk size:", pcmData.byteLength); // 👈 add this
+
+  onChunk(pcmData);
+};
+  }
 
   private convertFloatTo16BitPCM(input: Float32Array): ArrayBuffer {
     const buffer = new ArrayBuffer(input.length * 2);

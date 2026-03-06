@@ -27,8 +27,6 @@ export default function LivePage() {
 
   return (
     <div className="relative h-[calc(100vh-64px)] overflow-hidden bg-black">
-     
-      
       <NavigationHUD />
        <CameraBox />
        <div className="absolute right-6 bottom-6 w-[380px]">
@@ -36,9 +34,6 @@ export default function LivePage() {
       </div>
      
       <DetectionOverlay />
-
-      
-
       <div className="absolute left-6 bottom-6">
         <WebSocketStatus />
       </div>
